@@ -4,7 +4,7 @@
   "description": "Standalone MCP server bundle for PrincipleMD - run with npx or bunx",
   "main": "dist/mcp-server.js",
   "bin": {
-    "principal-mcp": "./dist/mcp-server.js"
+    "principal-mcp": "dist/mcp-server.js"
   },
   "scripts": {
     "build": "bun run scripts/bundle.ts",
@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/principle-md.git",
+    "url": "git+https://github.com/your-org/principle-md.git",
     "directory": "principal-mcp"
   },
   "engines": {
