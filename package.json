@@ -1,0 +1,47 @@
+{
+  "name": "@principal-ai/principal-mcp",
+  "version": "0.0.1",
+  "description": "Standalone MCP server bundle for PrincipleMD - run with npx or bunx",
+  "main": "dist/mcp-server.js",
+  "bin": {
+    "principal-mcp": "./dist/mcp-server.js"
+  },
+  "scripts": {
+    "build": "bun run scripts/bundle.ts",
+    "clean": "rm -rf dist",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "prepublishOnly": "bun run clean && bun run build && bun test"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/principle-md.git",
+    "directory": "principal-mcp"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "principle",
+    "mcp",
+    "agent",
+    "bundle"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.33",
+    "esbuild": "^0.21.5",
+    "eslint": "^8.57.0",
+    "typescript": "^5.5.4"
+  },
+  "packageManager": "bun@1.1.20"
+}
