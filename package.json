@@ -35,6 +35,8 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
+    "@a24z/core-library": "^0.1.25",
+    "globby": "^14.1.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
