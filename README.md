@@ -1,52 +1,78 @@
 # Principal MCP
 
-## Goal
+Model Context Protocol server bundle for PrincipalMD. This package mirrors the `agent-hooks` workflow so teams can run the MCP server via `npx` or install it locally without cloning the full Electron app.
 
-Package the PrincipalMD Model Context Protocol (MCP) server as a standalone npm bundle—mirroring the `agent-hooks` distribution and Bun-based workflow—so teams can run `npx principal-mcp` to start the server without cloning the full Electron app.
+## Installation & Quick Start
 
-## Source Implementation Summary
+```bash
+# one-off execution
+npx @principal-ai/principal-mcp
 
-- **Server entry point:** `PrincipleMD/core/src/mcp/index.ts` boots a stdio MCP server (`McpServer`) and wires branding-derived name/version plus HTTP bridge env vars.
-- **Core server logic:** `src/mcp/server/McpServer.ts` registers MCP tools/resources with `@modelcontextprotocol/sdk`, serving tools over stdio and exposing helpers to add tools/resources.
-- **Tools:** `src/mcp/tools/*` provides reusable `BaseTool`, `UserPromptTool`, and `AgentHandoffTool`, with planning-specific tools in `src/mcp/planning/tools/*` that call the planning HTTP bridge.
-- **Types & utilities:** `src/mcp/types/*` defines protocol types (`McpTool`, `McpResource`, etc.) and `src/mcp/utils/zod-to-json-schema.ts` converts Zod schemas to JSON Schema for tool metadata.
-- **Bundling:** `scripts/bundle-mcp-esbuild.js` bundles `src/mcp/index.ts` into `dist/mcp-standalone/mcp-server.js`, marking `@modelcontextprotocol/sdk` and `zod` as externals and adding a Node shebang.
-- **Agent configuration helpers:** `src/agents/mcp/mcp-config.ts` provides add/remove/count helpers for inserting the bundled MCP server into Claude, Gemini, and OpenCode configs.
+# or install globally
+npm install -g @principal-ai/principal-mcp
+principal-mcp
+```
 
-## Planned Package Layout
+### Configuration
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `--port`, `PRINCIPLE_MCP_PORT` | MCP bridge port shared by prompt, planning, and dependency tools | `3043` |
+| `--host`, `PRINCIPLE_MCP_HOST` | MCP bridge host | `localhost` |
+| `PRINCIPLE_MCP_PROTOCOL` | Protocol used when contacting ADE HTTP bridge from CLI tools | `http` |
+
+The CLI reads the same environment variables as the Electron app so it can route requests through the unified ADE bridge. When the bridge is offline, dependency tasks fall back to Memory Palace storage (requires a repository root on disk).
+
+## Included MCP Tools
+
+| Tool | Purpose |
+| ---- | ------- |
+| `user_prompt` | Request user input via the MCP HTTP bridge prompt endpoint. |
+| `agent-context-handoff` | Send agent handoff context to the Principal ADE bridge. |
+| `start_planning`, `navigate_to_slide`, `get_current_slide`, `update_slide`, `create_slide` | Planning tools that integrate with the ADE planning bridge. |
+| `submit_dependency_task` | Submit a dependency task to ADE; if the bridge is unavailable the task is persisted locally using Memory Palace. |
+| `get_dependency_task_doc` | Resolve the absolute path to a dependency task document stored in Memory Palace. |
+
+## Package Layout
 
 ```
 principal-mcp/
-  package.json           # npm metadata aligned with agent-hooks conventions
+  docs/                     # Design notes
   src/
-    index.ts             # re-export MCP server entry and CLI startup
-    server/              # ported McpServer implementation
-    tools/               # base tool + prompt & handoff tools
-    planning/            # planning bridge tool set (optional toggle at build time)
-    types/               # protocol types reused by tools
-    utils/               # zod-to-json-schema helper
-  scripts/
-    bundle.ts            # esbuild bundler (ported from bundle-mcp-esbuild.js, executed via Bun)
-  dist/                  # emitted bundle published with package
+    index.ts                # CLI entry point
+    server/                 # MCP server implementation
+    tools/                  # Tool implementations (general + dependency tools)
+    planning/               # Planning tool wrappers
+    types/, utils/          # Shared types & helpers
+  scripts/bundle.ts         # Bun-based esbuild bundler
+  tests/                    # Bun test suite
+  dist/                     # Generated bundle after build
 ```
 
-## Migration Checklist
+## Development
 
-1. Copy MCP sources listed above from `PrincipleMD/core` into this repository, preserving relative imports or adjusting paths.
-2. Translate the existing `bundle-mcp-esbuild.js` into a Bun-friendly script (TypeScript or plain JS) under `scripts/` and expose via `bun run build`.
-3. Define `package.json` similar to `agent-hooks` (name, bin pointing to `dist/mcp-server.js`, dependencies on `@modelcontextprotocol/sdk`, `zod`, `esbuild`, and scripts that invoke Bun for build/test commands).
-4. Add a `bin` entry so `npx principal-mcp` executes the bundled server.
-5. Mirror agent-hooks release tooling (`bun test`, optional `test-*.sh`) if distribution parity is required.
-6. Validate with `npm pack` + `node dist/mcp-server.js` (or `bun run dist/mcp-server.js`) to ensure the stdio bridge starts and MCP tools resolve correctly.
+```bash
+# install dependencies
+bun install
 
-## Operational Notes
+# run tests
+bun test
 
-- The runtime collapses all MCP interactions onto a single HTTP bridge port (default `3043`, aligning with `agent-hooks`).
-- Consumers configure the port via CLI (`principal-mcp --port 3043`) or `PRINCIPLE_MCP_PORT`, mirroring the hooks library’s flag/environment pattern.
-- Prompt, planning, and agent-handoff requests will multiplex through that one endpoint.
+# build the distributable bundle
+bun run build
 
-## Next Steps
+# publish (runs clean → build → test automatically)
 
-- Port source files and verify TypeScript builds.
-- Add Bun-powered tests (mirroring `agent-hooks/tests`) to exercise tool registration and HTTP bridge interactions.
-- Document usage in package README once implementation lands (include `npx principal-mcp` quick start and environment configuration table).
+```
+
+## Runtime Notes
+
+- MCP interactions use a single HTTP bridge port (default `3043`) so agents, planning tools, and dependency workflows share the same channel.
+- When `submit_dependency_task` cannot reach ADE it persists the task via Memory Palace; `repositoryRoot` must be supplied in that scenario so the CLI can locate the git root.
+- `get_dependency_task_doc` reads directly from Memory Palace to provide the path to active or completed task documents.
+
+## Resources
+
+- Original implementation reference: `PrincipleMD/core/src/mcp/*`
+- Core library dependency: `@a24z/core-library` (provides Memory Palace + filesystem adapters)
+- MCP SDK: `@modelcontextprotocol/sdk`

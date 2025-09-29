@@ -8,19 +8,10 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import {
-  /*AppInfoTool,*/
-  UserPromptTool,
-  AgentHandoffTool,
   SubmitDependencyTaskTool,
   GetDependencyTaskDocTool,
+  AddMemoryNoteTool,
 } from '../tools';
-import {
-  GetCurrentSlideTool,
-  NavigateToSlideTool,
-  UpdateSlideTool,
-  CreateSlideTool,
-  StartPlanningTool,
-} from '../planning';
 import { McpServerConfig, McpTool, McpResource, AnyMcpTool } from '../types';
 
 type QueueMessage = unknown;
@@ -53,15 +44,9 @@ export class McpServer {
   }
 
   private setupDefaultTools() {
-    this.addTool(new UserPromptTool(this.config));
-    this.addTool(new StartPlanningTool(this.config));
-    this.addTool(new GetCurrentSlideTool(this.config));
-    this.addTool(new NavigateToSlideTool(this.config));
-    this.addTool(new UpdateSlideTool(this.config));
-    this.addTool(new CreateSlideTool(this.config));
-    this.addTool(new AgentHandoffTool(this.config));
     this.addTool(new SubmitDependencyTaskTool(this.config));
     this.addTool(new GetDependencyTaskDocTool(this.config));
+    this.addTool(new AddMemoryNoteTool(this.config));
   }
 
   private setupDefaultResources() {
