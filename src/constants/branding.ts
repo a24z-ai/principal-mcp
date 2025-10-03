@@ -12,7 +12,7 @@ export const BRANDING = {
     'Unable to connect to MCP bridge. Please ensure the PrincipalAI app is running.',
   APP_VERSION: '1.0.2',
   MCP_VERSION: '1.0.0',
-  DEFAULT_BRIDGE_PORT: 3043,
+  DEFAULT_BRIDGE_PORT: 3044,
 } as const;
 
 export type BrandingConfig = typeof BRANDING;

@@ -67,7 +67,7 @@ export class SubmitDependencyTaskTool extends BaseTool<
     input: SubmitDependencyTaskInput,
   ): Promise<SubmitDependencyTaskResult> {
     const bridgeHost = this.config.bridgeHost ?? 'localhost';
-    const bridgePort = this.config.bridgePort ?? 3043;
+    const bridgePort = this.config.bridgePort ?? 3044;
     const protocol = process.env.PRINCIPLE_MCP_PROTOCOL ?? 'http';
     const endpoint = this.resolvePath('/dependencies/submit');
     const url = `${protocol}://${bridgeHost}:${bridgePort}${endpoint}`;

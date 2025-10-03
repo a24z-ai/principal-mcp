@@ -10,7 +10,7 @@ export { BaseTool } from './tools';
 export { type McpTool, type McpToolResult, type McpResource, type McpServerConfig } from './types';
 
 if (require.main === module) {
-  const port = parseInt(process.env.PRINCIPLE_MCP_PORT || process.env.PORT || '3043');
+  const port = parseInt(process.env.PRINCIPLE_MCP_PORT || process.env.PORT || '3044');
   const config: McpServerConfig = {
     name: BRANDING.MCP_SERVER_NAME,
     version: BRANDING.MCP_VERSION,
